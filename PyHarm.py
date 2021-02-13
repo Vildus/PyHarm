@@ -30,6 +30,23 @@ class Akord:
         return self.root + "_" + self.quality + "_" + str(self.value)
 
 
+class Scale:
+    def __init__(self, root, typ):
+        self.tony_num = []
+        self.tony = []
+        if typ == "Major":
+            offset = [2, 2, 1, 2, 2, 2]
+        else:
+            offset = [2, 1, 2, 2, 1, 2]
+        val = to_num(root)
+        self.tony_num.append(val)
+        for i in range(len(offset)):
+            val += offset[i]
+            val %= 12
+            self.tony_num.append(val)
+        for num in self.tony_num:
+            self.tony.append(to_note(num))
+
 def varuj(text):
     print('\x1b[0;31;40m' + "[WARNING]" + '\x1b[0m' + text)
 
@@ -43,30 +60,18 @@ def to_num(ton):
             out = valu[i]
     return out
 
+def to_note(ton):
+    tony = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"]
+    return tony[ton]
+
+
 def analyse(para):
     akordy = []
     for i in para:
         akordy.append(Akord(i))
     first = akordy[0]
-    stupnice_ton = first.root
-    stupnice_kvalita = first.quality
-    stupnice = postav(stupnice_ton, stupnice_kvalita)
-    print(stupnice)
-    print(akordy)
-
-def postav(root, typ):
-    out = []
-    if typ == "Major":
-        offset = [2, 2, 1, 2, 2, 2]
-    else:
-        offset = [2, 1, 2, 2, 1, 2]
-    val = to_num(root)
-    out.append(val)
-    for i in range(len(offset)):
-        val += offset[i]
-        val %= 12
-        out.append(val)
-    return out
+    stupnice = Scale(first.root, first.quality)
+    print(stupnice.tony)
 
 
 def execute(inp):
