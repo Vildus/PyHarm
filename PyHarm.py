@@ -1,5 +1,6 @@
 class Akord:
     def __init__(self, chord):
+        self.chord = chord
         if len(chord) > 1:
             if chord[1] == "#" or chord[1] == "b":
                 self.root = chord[0:2].capitalize()
@@ -21,19 +22,28 @@ class Akord:
                 self.quality = "minor"
             elif kvalita == "M":
                 self.quality = "Major"
+            elif kvalita == "dim":
+                self.quality = "dim"
+            elif kvalita == "+" or kvalita == "aug":
+                self.quality = "Aug"
+            elif kvalita == "7":
+                self.quality = "Dom7"
+            elif kvalita == "maj7":
+                self.quality = "Maj7"
             else:
                 varuj(" Akordová značka " + kvalita + " neexistuje. Bude Automaticky dur")
                 self.quality = "Major"
         self.value = to_num(self.root)
 
     def __repr__(self):
-        return self.root + "_" + self.quality + "_" + str(self.value)
+        return self.root + self.quality
 
 
 class Scale:
     def __init__(self, root, typ):
         self.tony_num = []
         self.tony = []
+        self.typ = typ
         if typ == "Major":
             offset = [2, 2, 1, 2, 2, 2]
         else:
@@ -46,6 +56,15 @@ class Scale:
             self.tony_num.append(val)
         for num in self.tony_num:
             self.tony.append(to_note(num))
+    def akordy(self):
+        out = []
+        if self.typ == "Major":
+            ends = ["", "m", "m", "", "", "m", "dim"]
+        else:
+            ends = ["m", "dim", "", "m", "m", "", ""]
+        for i in range(7):
+            out.append(self.tony[i]+ends[i])
+        return out
 
 def varuj(text):
     print('\x1b[0;31;40m' + "[WARNING]" + '\x1b[0m' + text)
@@ -64,14 +83,44 @@ def to_note(ton):
     tony = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"]
     return tony[ton]
 
+def to_roman(num, typ):
+    if num == 1:
+        roman = "i"
+    elif num == 2:
+        roman = "ii"
+    elif num == 3:
+        roman = "iii"
+    elif num == 4:
+        roman = "iv"
+    elif num == 5:
+        roman = "v"
+    elif num == 6:
+        roman = "vi"
+    elif num == 7:
+        roman = "vii"
+    if typ == "Major":
+        roman = roman.upper()
+    if typ == "dim":
+        roman += "°"
+    if typ == "Dom7":
+        roman += "7"
+    return roman
+
 
 def analyse(para):
     akordy = []
+    out = ""
     for i in para:
         akordy.append(Akord(i))
     first = akordy[0]
     stupnice = Scale(first.root, first.quality)
-    print(stupnice.tony)
+    legal = stupnice.akordy()
+    for akord in akordy:
+        if not akord.chord in legal:
+            print("Wierd akord " + akord.chord)
+        else:
+            out += to_roman((legal.index(akord.chord) + 1), akord.quality) + " "
+    print(out)
 
 
 def execute(inp):
