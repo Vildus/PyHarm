@@ -1,6 +1,5 @@
 class Akord:
     def __init__(self, chord):
-        self.chord = chord
         if len(chord) > 1:
             if chord[1] == "#" or chord[1] == "b":
                 self.root = chord[0:2].capitalize()
@@ -37,6 +36,18 @@ class Akord:
 
     def __repr__(self):
         return self.root + self.quality
+    
+    def chord(self):
+        k = self.quality
+        rr = to_note(self.value)
+        if k == "Major":
+            return rr
+        elif k == "minor":
+            return rr + "m"
+        elif k == "dim":
+            return rr + "dim"
+        else:
+            return "BROKEN_AKORD_ERROR"
 
 
 class Scale:
@@ -103,7 +114,7 @@ def to_roman(num, typ):
     if typ == "dim":
         roman += "°"
     if typ == "Dom7":
-        roman += "7"
+        roman = roman.upper() + "7"
     return roman
 
 
@@ -116,10 +127,10 @@ def analyse(para):
     stupnice = Scale(first.root, first.quality)
     legal = stupnice.akordy()
     for akord in akordy:
-        if not akord.chord in legal:
-            print("Wierd akord " + akord.chord)
+        if not akord.chord() in legal:
+            out += akord.chord() + "? "
         else:
-            out += to_roman((legal.index(akord.chord) + 1), akord.quality) + " "
+            out += to_roman((legal.index(akord.chord()) + 1), akord.quality) + " "
     print(out)
 
 

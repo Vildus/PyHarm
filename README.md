@@ -1,2 +1,2 @@
 # PyHarm
-Analyzátor a generátor akordových postupů
+Analyzátor a v budoucnosti i generátor akordových postupů
