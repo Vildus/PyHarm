@@ -48,6 +48,8 @@ class Akord:
             return rr + "m"
         elif k == "dim":
             return rr + "dim"
+        elif k == "Dom7":
+            return rr + "7"
         else:
             return "BROKEN_AKORD_ERROR"
 
@@ -72,12 +74,20 @@ class Scale:
     def akordy(self):
         out = []
         if self.typ == "Major":
-            ends = ["", "m", "m", "", "", "m", "dim"]
+            kvinta = ["", "m", "m", "", "", "m", "dim"]
+            septa = ["maj7", "min7", "min7", "maj7", "7", "min7", "hlf_dim7"]
         else:
-            ends = ["m", "dim", "", "m", "m", "", ""]
+            kvinta = ["m", "dim", "", "m", "m", "", ""]
         for i in range(7):
-            out.append(self.tony[i]+ends[i])
+            out.append(self.tony[i]+kvinta[i])
         return out
+
+
+def check_complete(akordy):
+    for akord in akordy:
+        if akord == "OFF_KEY":
+            return False
+    return True
 
 
 def analyse(para):
@@ -94,9 +104,14 @@ def analyse(para):
             out.append("OFF_KEY")
         else:
             out.append(to_roman((legal.index(akord.chord()) + 1), akord.quality))
+    # Řešení problémových akordů
     for i in range(len(out)):
         if out[i] == "OFF_KEY":
-            pass
+            suspect = akordy[i]
+            if (suspect.quality == "Major" or suspect.quality == "Dom7") and i != len(out) - 1:
+                sec_dom = to_note((suspect.value + 5) % 12)
+                if akordy[i+1].root == sec_dom and out[i+1] != "OFF_KEY":
+                    out[i] = "V/" + out[i+1] if suspect.quality == "Major" else "V7/" + out[i+1]
     for i in out:
         ans += i + " "
     print(ans)
